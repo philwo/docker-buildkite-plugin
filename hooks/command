@@ -272,12 +272,14 @@ fi
 
 # Parse network and create it if it don't exist.
 if [[ -n "${BUILDKITE_PLUGIN_DOCKER_NETWORK:-}" ]] ; then
-  DOCKER_NETWORK_ID=$(docker network ls --quiet --filter "name=${BUILDKITE_PLUGIN_DOCKER_NETWORK}")
-  if [[ -z ${DOCKER_NETWORK_ID} ]] ; then
-    echo "creating network ${BUILDKITE_PLUGIN_DOCKER_NETWORK}"
-    docker network create "${BUILDKITE_PLUGIN_DOCKER_NETWORK}"
-  else
-    echo "docker network ${BUILDKITE_PLUGIN_DOCKER_NETWORK} already exists"
+  if [[ "${BUILDKITE_PLUGIN_DOCKER_NETWORK}" != "host" ]]; then
+    DOCKER_NETWORK_ID=$(docker network ls --quiet --filter "name=${BUILDKITE_PLUGIN_DOCKER_NETWORK}")
+    if [[ -z ${DOCKER_NETWORK_ID} ]] ; then
+      echo "creating network ${BUILDKITE_PLUGIN_DOCKER_NETWORK}"
+      docker network create "${BUILDKITE_PLUGIN_DOCKER_NETWORK}"
+    else
+      echo "docker network ${BUILDKITE_PLUGIN_DOCKER_NETWORK} already exists"
+    fi
   fi
   args+=("--network" "${BUILDKITE_PLUGIN_DOCKER_NETWORK:-}")
 fi
